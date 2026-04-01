@@ -1,0 +1,10 @@
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.env
+auto_deploy.py
+set_secrets.py
+.pytest_cache/
+git_error.txt
+git_error.log

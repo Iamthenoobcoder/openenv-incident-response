@@ -1,0 +1,54 @@
+name: Incident Response AI
+version: 1.0.0
+description: A realistic simulation of a DevOps/SRE engineer's incident response workflow.
+author: sriniwasp36@gmail.com
+tags:
+  - devops
+  - sre
+  - reinforcement-learning
+  - cloud-infrastructure
+
+environment:
+  type: python
+  entrypoint: app.py
+  port: 7860
+  healthcheck: /api/health
+
+tasks:
+  - id: task1_easy
+    name: Payment API Outage
+    difficulty: easy
+    max_steps: 15
+  - id: task2_medium
+    name: Memory Leak + Red Herring
+    difficulty: medium
+    max_steps: 20
+  - id: task3_hard
+    name: Bad Deployment + Angry Customers
+    difficulty: hard
+    max_steps: 25
+
+actions:
+  - check_logs
+  - check_metrics
+  - check_connections
+  - check_config
+  - check_dependencies
+  - restart_service
+  - scale_service
+  - edit_config
+  - rollback_deployment
+  - clear_cache
+  - reply_customer
+  - update_status_page
+  - escalate_incident
+  - alert_team
+  - mark_resolved
+
+grading:
+  type: deterministic
+  range: [0.0, 1.0]
+  metrics:
+    - resolution
+    - efficiency
+    - customer_satisfaction
