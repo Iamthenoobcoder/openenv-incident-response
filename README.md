@@ -1,3 +1,18 @@
+---
+title: Incident Response AI
+emoji: 🚨
+colorFrom: red
+colorTo: blue
+sdk: docker
+pinned: false
+tags:
+  - openenv
+  - devops
+  - sre
+  - reinforcement-learning
+  - cloud-infrastructure
+---
+
 # 🚨 Incident Response AI — OpenEnv Environment
 
 **🟢 Live Simulation:** [Play the Agent Dashboard on Hugging Face Spaces](https://huggingface.co/spaces/yajd19/openenv-incident)
