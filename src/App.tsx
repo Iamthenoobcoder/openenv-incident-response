@@ -71,12 +71,13 @@ export default function App() {
       const data = await res.json();
       setObs(data.observation);
       
-      const rewardVal = (data.observation.score_so_far - obs.score_so_far).toFixed(2);
+      const rewardValNum = data.reward;
+      const rewardVal = rewardValNum > 0 ? `+${rewardValNum.toFixed(2)}` : rewardValNum.toFixed(2);
       const newTrace: Trace = {
         step: data.observation.step_count,
         actionDisplay: action.type,
         targetDisplay: action.target || 'system',
-        rewardDisplay: parseFloat(rewardVal) > 0 ? `+${rewardVal}` : rewardVal,
+        rewardDisplay: rewardVal,
         detailsDisplay: data.observation.action_feedback?.substring(0, 80) + "..."
       };
       setTraces(prev => [...prev, newTrace]);
@@ -135,7 +136,7 @@ export default function App() {
         currentObs = stepData.observation;
         setObs(currentObs);
 
-        const rewardValNum = currentObs.score_so_far - obs.score_so_far;
+        const rewardValNum = stepData.reward;
         const rewardValStr = rewardValNum.toFixed(2);
         const rewardVal = rewardValNum > 0 ? `+${rewardValStr}` : rewardValStr;
         
@@ -189,7 +190,6 @@ export default function App() {
             )}
             <span>Task {currentTask ? currentTask.split('_')[0].replace('task', '') : 'None'}</span>
             <span>seed: 42</span>
-            <span>gemini-2.0-flash</span>
           </div>
         </div>
 
@@ -429,7 +429,7 @@ export default function App() {
           </div>
 
           <div className="text-[10px] text-gray-500 mt-6 font-mono">
-            seed: 42 · gemini-2.0-flash
+            seed: 42
           </div>
         </div>
 
