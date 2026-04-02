@@ -88,6 +88,19 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ observation: currentObs })
         });
+        
+        if (!res.ok) {
+           const errText = await res.text();
+           setTraces(prev => [...prev, {
+             step: currentObs.step_count,
+             actionDisplay: 'SYSTEM_ERROR',
+             targetDisplay: 'LLM_API',
+             rewardDisplay: 'err',
+             detailsDisplay: `Genuine AI LLM Backend Exception: ${errText}`
+           }]);
+           break;
+        }
+
         const actionData = await res.json();
         const action = actionData.action || actionData;
 
@@ -96,6 +109,19 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(action)
         });
+        
+        if (!stepRes.ok) {
+           const errText = await stepRes.text();
+           setTraces(prev => [...prev, {
+             step: currentObs.step_count,
+             actionDisplay: 'SYSTEM_ERROR',
+             targetDisplay: 'ENVIRONMENT_STEP',
+             rewardDisplay: 'err',
+             detailsDisplay: `Failed to execute action: ${errText}`
+           }]);
+           break;
+        }
+
         const stepData = await stepRes.json();
         currentObs = stepData.observation;
         setObs(currentObs);
@@ -114,8 +140,15 @@ export default function App() {
 
         if (currentObs.done) break;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      setTraces(prev => [...prev, {
+        step: 0,
+        actionDisplay: 'CRITICAL_CRASH',
+        targetDisplay: 'frontend',
+        rewardDisplay: 'err',
+        detailsDisplay: err.message || 'Unknown processing error occurred.'
+      }]);
     } finally {
       setAiRunning(false);
     }
