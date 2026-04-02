@@ -62,11 +62,12 @@ export default function App() {
       const data = await res.json();
       setObs(data.observation);
       
+      const rewardVal = (data.observation.score_so_far - obs.score_so_far).toFixed(2);
       const newTrace: Trace = {
         step: data.observation.step_count,
         actionDisplay: action.type,
         targetDisplay: action.target || 'system',
-        rewardDisplay: '+0.00',
+        rewardDisplay: parseFloat(rewardVal) > 0 ? `+${rewardVal}` : rewardVal,
         detailsDisplay: data.observation.action_feedback?.substring(0, 80) + "..."
       };
       setTraces(prev => [...prev, newTrace]);
@@ -99,7 +100,9 @@ export default function App() {
         currentObs = stepData.observation;
         setObs(currentObs);
 
-        const rewardVal = currentObs.score_so_far > obs.score_so_far ? '+0.41' : '+0.02';
+        const rewardValNum = currentObs.score_so_far - obs.score_so_far;
+        const rewardValStr = rewardValNum.toFixed(2);
+        const rewardVal = rewardValNum > 0 ? `+${rewardValStr}` : rewardValStr;
         
         setTraces(prev => [...prev, {
           step: currentObs.step_count,
@@ -122,17 +125,7 @@ export default function App() {
     return <div className="h-screen bg-[#1E1E1E] flex items-center justify-center text-white">Loading OpenEnv...</div>;
   }
 
-  // If trace is empty, we will inject dummy rows similar to the screenshot just for UI parity if needed, 
-  // but strictly speaking dynamic logic populates it! For layout matching purpose we pad it.
-  const displayTraces = traces.length > 0 ? traces : [
-    { step: 1, actionDisplay: 'check_metrics', targetDisplay: 'auth_service', rewardDisplay: '+0.02', detailsDisplay: 'CPU=88% MEM=62% ERR=100/s STATUS=DOWN' },
-    { step: 2, actionDisplay: 'check_logs', targetDisplay: 'auth_service [application]', rewardDisplay: '+0.02', detailsDisplay: '10 entries retrieved. JWT_SECRET mismatch visible.' },
-    { step: 3, actionDisplay: 'check_logs', targetDisplay: 'auth_service [deployment]', rewardDisplay: '+0.02', detailsDisplay: 'Deployment v1.2.2 set JWT_SECRET fingerprint=abc991' },
-    { step: 4, actionDisplay: 'check_config', targetDisplay: 'auth_service', rewardDisplay: '+0.02', detailsDisplay: 'jwt_secret: WRONG-SECRET • previous_version: v1.2.1' },
-    { step: 5, actionDisplay: 'rollback_deployment', targetDisplay: 'auth_service v1.2.1', rewardDisplay: '+0.41', detailsDisplay: 'Rollback complete. JWT_SECRET restored. Auth recovering.' },
-    { step: 6, actionDisplay: 'reply_customer', targetDisplay: 't001', rewardDisplay: '+0.05', detailsDisplay: 'Replied: "Authentication issue resolved. We apologize..."' },
-    { step: 7, actionDisplay: 'thinking...', targetDisplay: '', rewardDisplay: '—', detailsDisplay: 'Agent analyzing observation' }
-  ];
+  const displayTraces = traces;
 
   return (
     <div className="min-h-screen bg-[#1E1E1E] text-gray-300 font-sans p-4 flex flex-col items-center">
