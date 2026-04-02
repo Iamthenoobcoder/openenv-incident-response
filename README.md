@@ -49,7 +49,7 @@ AI agents to handle complex, multi-service infrastructure failures that humans a
 
 ### Running the Environment
 ```bash
-python app.py
+python server/app.py
 ```
 The server will start on `http://localhost:3000`.
 
@@ -129,5 +129,4 @@ Provides signal over the full trajectory:
 
 | Model | Task 1 | Task 2 | Task 3 | Avg |
 | :--- | :--- | :--- | :--- | :--- |
-| Gemini 1.5 Flash | 0.85 | 0.72 | 0.61 | 0.73 |
-| Gemini 1.5 Pro | 0.98 | 0.92 | 0.88 | 0.93 |
+| Gemini 2.0 Flash | 0.65 | 0.50 | 0.25 | 0.47 |

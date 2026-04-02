@@ -1,0 +1,34 @@
+﻿                          
+ Usage: openenv init      
+ [OPTIONS] ENV_NAME       
+                          
+ Initialize a new OpenEnv 
+ environment              
+                          
++- Arguments ------------+
+| *    enà      TE  Name |
+|               XT  of   |
+|                   the  |
+|                   envà |
+|                   to   |
+|                   creà |
+|                   (snà |
+|                   e.gà |
+|                   'myà |
+|                   [reà |
++------------------------+
++- Options --------------+
+| --oà  -o      TE  Outà |
+|               XT  dirà |
+|                   (deà |
+|                   to   |
+|                   curà |
+|                   worà |
+|                   dirà |
+| --hà              Show |
+|                   this |
+|                   mesà |
+|                   and  |
+|                   exià |
++------------------------+
+

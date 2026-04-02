@@ -1,8 +1,9 @@
 name: Incident Response AI
 version: 1.0.0
 description: A realistic simulation of a DevOps/SRE engineer's incident response workflow.
-author: sriniwasp36@gmail.com
+author: openenv-user
 tags:
+  - openenv
   - devops
   - sre
   - reinforcement-learning
@@ -52,3 +53,25 @@ grading:
     - resolution
     - efficiency
     - customer_satisfaction
+
+observation_space:
+  type: object
+  properties:
+    services:
+      type: object
+    logs:
+      type: array
+    alerts:
+      type: array
+    tickets:
+      type: array
+
+action_space:
+  type: object
+  properties:
+    type:
+      type: string
+    target:
+      type: string
+    params:
+      type: object

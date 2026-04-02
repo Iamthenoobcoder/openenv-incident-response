@@ -1,5 +1,0 @@
-{
-  "name": "Incident Response AI",
-  "description": "A realistic SRE simulation environment for training and evaluating incident response agents across cascading failures.",
-  "requestFramePermissions": []
-}

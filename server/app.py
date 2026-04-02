@@ -1,6 +1,9 @@
 import os
 import sys
 
+# Add root project dir to path so environment and graders modules resolve
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 try:
     from fastapi import FastAPI, HTTPException
     from fastapi.staticfiles import StaticFiles
@@ -8,9 +11,9 @@ try:
     from pydantic import BaseModel
     from environment.env import IncidentResponseEnv
     from environment.models import Action, Observation, SystemState, StepResponse
-    from graders.grade_payment import Task1Grader
-    from graders.grade_memory import Task2Grader
-    from graders.grade_corruption import Task3Grader
+    from graders.grader_task1 import Task1Grader
+    from graders.grader_task2 import Task2Grader
+    from graders.grader_task3 import Task3Grader
 except ImportError as e:
     print(f"Import error: {e}")
     sys.exit(1)
@@ -143,22 +146,12 @@ def grader():
 
 @app.post("/api/baseline")
 def run_baseline():
-    try:
-        # This triggers the baseline script and returns scores
-        # For now, we'll return the pre-calculated scores from README
-        # In a real scenario, we might run the script asynchronously
-        return {
-            "baseline_scores": {
-                "task1_easy": 0.85,
-                "task2_medium": 0.72,
-                "task3_hard": 0.61
-            },
-            "average": 0.73,
-            "model": "Gemini 1.5 Flash"
-        }
-    except Exception as e:
-        print(f"Baseline failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    return {
+        'message': 'Run inference.py to generate real baseline scores.',
+        'command': 'python inference.py',
+        'results_file': 'baseline/results.json',
+        'note': 'Scores depend on MODEL_NAME and HF_TOKEN env vars.'
+    }
 
 @app.get("/tasks")
 def tasks_root():
@@ -186,7 +179,7 @@ Available Actions: check_logs, check_metrics, check_config, restart_service, edi
 Think step by step. Return ONLY a JSON action object like {{"type": "check_logs", "target": "database", "params": {{}}}}."""
         
         response = client.chat.completions.create(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             messages=[{"role": "user", "content": prompt}]
         )
         action_text = response.choices[0].message.content
@@ -231,7 +224,7 @@ if os.path.exists(dist_path):
     except Exception as e:
         print(f"Failed to mount static files: {e}")
 
-if __name__ == "__main__":
+def main():
     import uvicorn
     import sys
     print(f"Python version: {sys.version}")
@@ -239,7 +232,10 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 7860))
     print(f"Starting FastAPI server on http://0.0.0.0:{port}")
     try:
-        uvicorn.run(app, host="0.0.0.0", port=port, log_level="debug")
+        uvicorn.run("server.app:app", host="0.0.0.0", port=port, log_level="debug")
     except Exception as e:
         print(f"Failed to start uvicorn: {e}")
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()
