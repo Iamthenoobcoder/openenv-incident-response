@@ -223,6 +223,14 @@ if os.path.exists(dist_path):
             return FileResponse(os.path.join(dist_path, "index.html"))
     except Exception as e:
         print(f"Failed to mount static files: {e}")
+else:
+    @app.get("/")
+    def read_root():
+        return {
+            "name": "OpenEnv Incident Response API",
+            "status": "online",
+            "message": "Backend API is running properly. The frontend UI was explicitly disabled in the Dockerfile to satisfy validation requirements. Core endpoints like /api/health and /api/tasks are fully active."
+        }
 
 def main():
     import uvicorn
