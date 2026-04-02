@@ -14,10 +14,22 @@ interface Trace {
 export default function App() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [currentTask, setCurrentTask] = useState<string>('task3_hard');
-  const [obs, setObs] = useState<Observation | null>(null);
+  const [obs, setObs] = useState<Observation | null>({
+    step_count: 0,
+    max_steps: 25,
+    services: {},
+    recent_logs: [],
+    active_alerts: [],
+    customer_tickets: [],
+    action_feedback: '',
+    cascade_warning: false,
+    done: false,
+    score_so_far: 0
+  });
   const [aiRunning, setAiRunning] = useState(false);
   const [traces, setTraces] = useState<Trace[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isStarted, setIsStarted] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -30,10 +42,6 @@ export default function App() {
       }
     };
     fetchTasks();
-    const timer = setTimeout(() => {
-      handleReset('task3_hard');
-    }, 1000);
-    return () => clearTimeout(timer);
   }, []);
 
   const handleReset = async (taskId: string) => {
@@ -47,6 +55,7 @@ export default function App() {
       setObs(data);
       setCurrentTask(taskId);
       setTraces([]);
+      setIsStarted(true);
     } catch (err) {
       console.error(err);
     }
@@ -158,6 +167,8 @@ export default function App() {
     return <div className="h-screen bg-[#1E1E1E] flex items-center justify-center text-white">Loading OpenEnv...</div>;
   }
 
+  const isIdle = !isStarted;
+
   const displayTraces = traces;
 
   return (
@@ -171,8 +182,12 @@ export default function App() {
             <h1 className="text-sm font-semibold tracking-wide text-white">Incident Response AI — OpenEnv</h1>
           </div>
           <div className="flex items-center gap-4 text-xs font-mono text-gray-400">
-            <span className="text-red-400 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50">INCIDENT ACTIVE</span>
-            <span>Task 3 — Hard</span>
+            {isIdle ? (
+               <span className="text-gray-400 bg-gray-900/20 px-2 py-0.5 rounded border border-gray-900/50">STANDBY</span>
+            ) : (
+               <span className="text-red-400 bg-red-900/20 px-2 py-0.5 rounded border border-red-900/50">INCIDENT ACTIVE</span>
+            )}
+            <span>Task {currentTask ? currentTask.split('_')[0].replace('task', '') : 'None'}</span>
             <span>seed: 42</span>
             <span>gemini-2.0-flash</span>
           </div>
@@ -377,38 +392,39 @@ export default function App() {
         {/* Controls */}
         <div className="bg-[#2B2B2B] rounded-lg border border-[#3E3E3E] p-4 shadow-lg flex items-center justify-between">
           <div className="flex flex-col w-64">
-            <h2 className="text-[10px] text-gray-400 tracking-wider mb-2">CONTROLS</h2>
+            <h2 className="text-[10px] text-gray-400 tracking-wider mb-2">SCENARIO SELECTION</h2>
             <select 
               value={currentTask}
-              onChange={(e) => handleReset(e.target.value)}
+              onChange={(e) => setCurrentTask(e.target.value)}
               className="bg-[#1a1a1a] border border-[#444] text-gray-300 text-xs rounded px-2 py-1.5 outline-none focus:border-blue-500"
             >
               {tasks.length ? tasks.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>{t.name} ({t.difficulty})</option>
               )) : <option value="task3_hard">Task 3 — Bad Deployment (Hard)</option>}
             </select>
           </div>
 
           <div className="flex items-center gap-4 mt-6">
             <button 
+              onClick={() => handleReset(currentTask)}
+              disabled={aiRunning}
+              className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/50 text-blue-400 text-sm px-4 py-1.5 rounded transition-colors"
+            >
+              Load Scenario
+            </button>
+            <button 
               onClick={runEpisode}
-              disabled={aiRunning || obs.done}
-              className="bg-[#2F2F2F] hover:bg-[#3f3f3f] border border-[#444] text-white text-sm px-4 py-1.5 rounded transition-colors flex items-center gap-2"
+              disabled={aiRunning || obs.done || isIdle}
+              className="bg-[#2F2F2F] hover:bg-[#3f3f3f] border border-[#444] text-white text-sm px-4 py-1.5 rounded transition-colors flex items-center gap-2 disabled:opacity-50"
             >
               Run episode ↗
             </button>
             <button 
               onClick={() => takeAction({type: "check_logs", target: "web_server", params: {}})}
-              disabled={aiRunning || obs.done}
-              className="bg-[#2F2F2F] hover:bg-[#3f3f3f] border border-[#444] text-white text-sm px-4 py-1.5 rounded transition-colors"
+              disabled={aiRunning || obs.done || isIdle}
+              className="bg-[#2F2F2F] hover:bg-[#3f3f3f] border border-[#444] text-white text-sm px-4 py-1.5 rounded transition-colors disabled:opacity-50"
             >
               Step once
-            </button>
-            <button 
-              onClick={() => handleReset(currentTask)}
-              className="bg-[#2F2F2F] hover:bg-[#3f3f3f] border border-[#444] text-white text-sm px-4 py-1.5 rounded transition-colors"
-            >
-              Reset
             </button>
           </div>
 
