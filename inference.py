@@ -9,7 +9,6 @@ from baseline.parse_action import parse_action
 
 load_dotenv()
 
-# The judges will inject these, but we fallback gracefully for local testing!
 API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY")))
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash")

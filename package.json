@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx concurrently \"python -m uvicorn app:app --host 0.0.0.0 --port 7860\" \"vite --host 0.0.0.0 --port 3000\"",
-    "start": "python app.py",
+    "dev": "npx concurrently \"python -m uvicorn server.app:app --host 0.0.0.0 --port 7860\" \"vite --host 0.0.0.0 --port 3000\"",
+    "start": "python server/app.py",
     "build": "vite build",
     "test": "pytest",
     "lint": "tsc --noEmit"

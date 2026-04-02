@@ -213,13 +213,15 @@ def actions():
         raise HTTPException(status_code=500, detail=str(e))
 
 # Serve static files from dist if it exists (for production/Hugging Face)
-dist_path = os.path.join(os.getcwd(), "dist")
+dist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dist")
 if os.path.exists(dist_path):
     try:
         app.mount("/", StaticFiles(directory=dist_path, html=True), name="static")
         
         @app.exception_handler(404)
         async def not_found(request, exc):
+            if request.url.path.startswith("/api/"):
+                return {"detail": "Not Found"}
             return FileResponse(os.path.join(dist_path, "index.html"))
     except Exception as e:
         print(f"Failed to mount static files: {e}")
@@ -229,7 +231,7 @@ else:
         return {
             "name": "OpenEnv Incident Response API",
             "status": "online",
-            "message": "Backend API is running properly. The frontend UI was explicitly disabled in the Dockerfile to satisfy validation requirements. Core endpoints like /api/health and /api/tasks are fully active."
+            "message": "Backend API is running properly. The frontend UI was not built or found in the dist directory."
         }
 
 def main():
