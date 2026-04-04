@@ -33,5 +33,7 @@ COPY --from=frontend-builder /app/dist ./dist
 # Expose the API port
 EXPOSE 7860
 
+HEALTHCHECK --interval=30s --timeout=10s CMD curl -f http://localhost:7860/api/health || exit 1
+
 # The main entrypoint starts the FastAPI server
 CMD ["python", "server/app.py"]

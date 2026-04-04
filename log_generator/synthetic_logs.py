@@ -8,26 +8,26 @@ class SyntheticLogGenerator:
 
     def get_logs(self, state: SystemState) -> List[LogEntry]:
         logs: List[LogEntry] = []
-        now = datetime.now()
+        now_str = "2024-11-15T14:00:00Z"
 
         for name, s in state.services.items():
             if s.status == ServiceStatus.crashing:
                 logs.append(LogEntry(
-                    timestamp=now.isoformat(),
+                    timestamp=now_str,
                     service=name,
                     level=LogLevel.CRITICAL,
                     message=f"Process terminated unexpectedly. Error code: 137 (OOM)"
                 ))
             elif s.status == ServiceStatus.degraded:
                 logs.append(LogEntry(
-                    timestamp=now.isoformat(),
+                    timestamp=now_str,
                     service=name,
                     level=LogLevel.ERROR,
                     message=f"High latency detected in upstream dependencies. Error rate: {s.error_rate}%"
                 ))
             else:
                 logs.append(LogEntry(
-                    timestamp=now.isoformat(),
+                    timestamp=now_str,
                     service=name,
                     level=LogLevel.INFO,
                     message=f"Service heartbeat normal. CPU: {s.cpu}%"

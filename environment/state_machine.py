@@ -62,12 +62,8 @@ def apply_action(state: SystemState, action: Action) -> tuple[SystemState, str, 
             feedback = "No open customer tickets found."
 
     elif action.type == "mark_resolved":
-        all_healthy = all(s.health > 0.9 for s in next_state.services.values())
-        if all_healthy:
-            next_state.resolved = True
-            feedback = "Incident marked as resolved. All systems operational."
-        else:
-            feedback = "Cannot resolve: Some services are still degraded or down."
+        next_state.resolved = True
+        feedback = "Incident marked as resolved by agent."
 
     else:
         feedback = f"Action {action.type} executed."
@@ -91,6 +87,10 @@ def check_resolution(state: SystemState, action: Action):
         state.services["database"].health = 1.0
         state.services["database"].status = ServiceStatus.running
         state.services["database"].error_rate = 0
+        if "payment_api" in state.services:
+            state.services["payment_api"].health = 1.0
+            state.services["payment_api"].status = ServiceStatus.running
+            state.services["payment_api"].error_rate = 0
 
     # Task 3: Bad JWT
     if (

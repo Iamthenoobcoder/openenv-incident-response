@@ -35,7 +35,7 @@ initial_state = SystemState(
             message="Cannot login",
             status="open",
             urgency=1.0,
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         ),
         CustomerTicket(
             id="t4",
@@ -43,7 +43,7 @@ initial_state = SystemState(
             message="502 error",
             status="open",
             urgency=0.7,
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         ),
         CustomerTicket(
             id="t5",
@@ -51,7 +51,7 @@ initial_state = SystemState(
             message="Dashboard down",
             status="open",
             urgency=0.5,
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ],
     active_alerts=[
@@ -60,7 +60,7 @@ initial_state = SystemState(
             severity="critical",
             service="auth_service",
             message="Auth down after deploy",
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ]
 )

@@ -35,7 +35,7 @@ initial_state = SystemState(
             message="Payments failing",
             status="open",
             urgency=0.8,
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ],
     active_alerts=[
@@ -44,7 +44,7 @@ initial_state = SystemState(
             severity="critical",
             service="database",
             message="OOM Killed",
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ]
 )

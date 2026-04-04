@@ -11,7 +11,7 @@ tags:
 
 environment:
   type: python
-  entrypoint: app.py
+  entrypoint: server/app.py
   port: 7860
   healthcheck: /api/health
 

@@ -51,11 +51,11 @@ AI agents to handle complex, multi-service infrastructure failures that humans a
 ```bash
 python server/app.py
 ```
-The server will start on `http://localhost:3000`.
+The server will start on `http://localhost:7860`.
 
 ### Running the Baseline
 ```bash
-python baseline/run_baseline.py
+python inference.py
 ```
 
 ### Running the Validator

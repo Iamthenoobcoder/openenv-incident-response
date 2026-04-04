@@ -35,7 +35,7 @@ initial_state = SystemState(
             message="Sluggish response",
             status="open",
             urgency=0.6,
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ],
     active_alerts=[
@@ -44,7 +44,7 @@ initial_state = SystemState(
             severity="medium",
             service="web_server",
             message="High memory",
-            timestamp=datetime.now().isoformat()
+            timestamp="2024-11-15T14:00:00Z"
         )
     ]
 )
