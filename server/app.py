@@ -178,10 +178,26 @@ Current Observation: {json.dumps(req.observation)}
 Available Actions: check_logs, check_metrics, check_config, restart_service, edit_config, rollback_deployment, reply_customer, mark_resolved.
 Think step by step. Return ONLY a JSON action object like {{"type": "check_logs", "target": "database", "params": {{}}}}."""
         
-        response = client.chat.completions.create(
-            model="gemini-2.0-flash",
-            messages=[{"role": "user", "content": prompt}]
-        )
+        max_retries = 5
+        response = None
+        for attempt in range(max_retries):
+            try:
+                response = client.chat.completions.create(
+                    model="gemini-2.0-flash",
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                break
+            except Exception as e:
+                import time
+                error_str = str(e)
+                if "429" in error_str or "Quota" in error_str or "resource_exhausted" in error_str.lower():
+                    print(f"API Rate limit hit. Waiting 30s before retry {attempt+1}/{max_retries}...")
+                    time.sleep(30)
+                else:
+                    raise
+                    
+        if not response:
+            raise Exception("Failed to get LLM response after multiple retries due to strict rate limits.")
         action_text = response.choices[0].message.content
         if "```json" in action_text:
             action_text = action_text.split("```json")[1].split("```")[0].strip()
