@@ -10,7 +10,7 @@ from baseline.parse_action import parse_action
 load_dotenv()
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY")))
+API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY", "AIzaSyBXkSjxI2hEcwfD-NGGnLdFggoDsGiG-pE")))
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash")
 
 client = OpenAI(
@@ -54,8 +54,11 @@ def run_task(task_id: str):
                 print(f"Rate limit or other error: {e}. Waiting 15s...")
                 time.sleep(15)
         else:
-            print("Failed after max retries")
-            break
+            print("Failed after max retries. Using fallback.")
+            action = FALLBACK_ACTION
+            res = requests.post(f"{BASE_URL}/step", json=action)
+            obs = res.json()
+            continue
             
         message_text = response.choices[0].message.content
         action = parse_action(message_text)
