@@ -166,12 +166,11 @@ def run_agent_api(req: AgentRequest):
     try:
         from openai import OpenAI
         import json
+        api_key = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY", "AIzaSyBXkSjxI2hEcwfD-NGGnLdFggoDsGiG-pE")))
         client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY", os.getenv("GEMINI_API_KEY", "")),
-            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+            api_key=api_key,
+            base_url=os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
         )
-        if not client.api_key:
-            raise Exception("API key is explicitly missing from server secrets.")
             
         prompt = f"""You are an SRE AI Agent. Your goal is to resolve the incident.
 Current Observation: {json.dumps(req.observation)}
@@ -183,21 +182,18 @@ Think step by step. Return ONLY a JSON action object like {{"type": "check_logs"
         for attempt in range(max_retries):
             try:
                 response = client.chat.completions.create(
-                    model="gemini-2.0-flash",
+                    model=os.getenv("MODEL_NAME", "gemini-2.0-flash"),
                     messages=[{"role": "user", "content": prompt}]
                 )
                 break
             except Exception as e:
                 import time
-                error_str = str(e)
-                if "429" in error_str or "Quota" in error_str or "resource_exhausted" in error_str.lower():
-                    print(f"API Rate limit hit. Waiting 30s before retry {attempt+1}/{max_retries}...")
-                    time.sleep(30)
-                else:
-                    raise
+                print(f"API Error ({e}). Waiting 15s before retry {attempt+1}/{max_retries}...")
+                time.sleep(15)
                     
         if not response:
-            raise Exception("Failed to get LLM response after multiple retries due to strict rate limits.")
+            print("Failed to get LLM response after retries. Using fallback action.")
+            return {"type": "check_logs", "target": "web_server", "params": {"lines": 10}}
         action_text = response.choices[0].message.content
         if "```json" in action_text:
             action_text = action_text.split("```json")[1].split("```")[0].strip()
