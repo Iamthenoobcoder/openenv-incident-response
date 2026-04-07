@@ -70,10 +70,11 @@ def run_task(task_id: str):
         
         # 3. Step
         res = requests.post(f"{BASE_URL}/step", json=action)
-        obs = res.json()
+        step_res = res.json()
+        obs = step_res.get("observation", step_res)
         history.append({"action": action, "feedback": obs.get("action_feedback")})
         
-        if obs.get("done"):
+        if step_res.get("done") or obs.get("done"):
             break
             
     # Fetch final score using the programmatic grader

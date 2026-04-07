@@ -92,6 +92,19 @@ def check_resolution(state: SystemState, action: Action):
             state.services["payment_api"].status = ServiceStatus.running
             state.services["payment_api"].error_rate = 0
 
+    # Task 2: Memory leak fix
+    if (
+        action.type == "edit_config"
+        and action.target == "web_server"
+        and action.params.get("connection_timeout") in ("30s", "60s")
+    ):
+        state.services["web_server"].health = 1.0
+        state.services["web_server"].status = ServiceStatus.running
+        state.services["web_server"].memory = 40.0
+        state.services["web_server"].error_rate = 0
+        if "cache" in state.services:
+            state.services["cache"].cpu = 15.0  # red herring resolves naturally
+
     # Task 3: Bad JWT
     if (
         action.type == "rollback_deployment"
