@@ -1,7 +1,23 @@
 {
   "task1_easy": {
-    "score": 0.65,
+    "score": 0.8799999999999999,
     "history": [
+      {
+        "action": {
+          "type": "check_metrics",
+          "target": "payment_api",
+          "params": {}
+        },
+        "feedback": "Metrics for payment_api: CPU 10.0%, MEM 20.0%, Errors 80.0%"
+      },
+      {
+        "action": {
+          "type": "check_logs",
+          "target": "payment_api",
+          "params": {}
+        },
+        "feedback": "Inspecting logs for payment_api... Found recent anomalies."
+      },
       {
         "action": {
           "type": "check_logs",
@@ -22,17 +38,33 @@
       },
       {
         "action": {
+          "type": "check_metrics",
+          "target": "database",
+          "params": {}
+        },
+        "feedback": "Metrics for database: CPU 5.0%, MEM 100.0%, Errors 0%"
+      },
+      {
+        "action": {
           "type": "mark_resolved",
           "target": null,
-          "params": null
+          "params": {}
         },
         "feedback": "Incident marked as resolved by agent."
       }
     ]
   },
   "task2_medium": {
-    "score": 0.50,
+    "score": 0.9500000000000001,
     "history": [
+      {
+        "action": {
+          "type": "check_metrics",
+          "target": "cache",
+          "params": {}
+        },
+        "feedback": "Metrics for cache: CPU 87.0%, MEM 30.0%, Errors 0.0%"
+      },
       {
         "action": {
           "type": "check_metrics",
@@ -40,6 +72,14 @@
           "params": {}
         },
         "feedback": "Metrics for web_server: CPU 40.0%, MEM 95.0%, Errors 15.0%"
+      },
+      {
+        "action": {
+          "type": "restart_service",
+          "target": "web_server",
+          "params": {}
+        },
+        "feedback": "Restarting web_server... Service is coming back online."
       },
       {
         "action": {
@@ -55,14 +95,14 @@
         "action": {
           "type": "mark_resolved",
           "target": null,
-          "params": null
+          "params": {}
         },
         "feedback": "Incident marked as resolved by agent."
       }
     ]
   },
   "task3_hard": {
-    "score": 0.25,
+    "score": 0.8666666666666667,
     "history": [
       {
         "action": {
@@ -71,6 +111,14 @@
           "params": {}
         },
         "feedback": "Inspecting logs for auth_service... Found recent anomalies."
+      },
+      {
+        "action": {
+          "type": "check_config",
+          "target": "auth_service",
+          "params": {}
+        },
+        "feedback": "Current config for auth_service: {'JWT_SECRET': 'WRONG_SECRET'}"
       },
       {
         "action": {
@@ -84,9 +132,20 @@
       },
       {
         "action": {
+          "type": "reply_customer",
+          "target": null,
+          "params": {
+            "ticket_id": "TKT-1234",
+            "message": "rolled back"
+          }
+        },
+        "feedback": "Replied to customer VIP. Ticket resolved."
+      },
+      {
+        "action": {
           "type": "mark_resolved",
           "target": null,
-          "params": null
+          "params": {}
         },
         "feedback": "Incident marked as resolved by agent."
       }
