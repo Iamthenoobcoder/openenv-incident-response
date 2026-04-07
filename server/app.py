@@ -5,6 +5,12 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
     from fastapi import FastAPI, HTTPException
     from fastapi.staticfiles import StaticFiles
     from fastapi.responses import FileResponse
@@ -194,13 +200,15 @@ Think step by step. Return ONLY a JSON action object like {{"type": "check_logs"
         if not response:
             print("Failed to get LLM response after retries. Using fallback action.")
             return {"type": "check_logs", "target": "web_server", "params": {"lines": 10}}
+        
+        from baseline.parse_action import parse_action
         action_text = response.choices[0].message.content
-        if "```json" in action_text:
-            action_text = action_text.split("```json")[1].split("```")[0].strip()
-        elif "```" in action_text:
-            action_text = action_text.split("```")[1].strip()
+        action = parse_action(action_text)
+        
+        if not action:
+            print(f"Failed to parse action from response: {action_text}, using fallback.")
+            return {"type": "check_logs", "target": "web_server", "params": {"lines": 10}}
             
-        action = json.loads(action_text)
         return action
     except Exception as e:
         print(f"Agent error: {e}")
