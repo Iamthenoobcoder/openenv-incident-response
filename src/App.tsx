@@ -51,12 +51,22 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ task_id: taskId, seed: 42 })
       });
+      if (!res.ok) {
+         const errText = await res.text();
+         alert(`Failed to load scenario: ${res.status} - ${errText}`);
+         return;
+      }
       const data = await res.json();
+      if (!data || !data.services) {
+         alert("Invalid response format from server.");
+         return;
+      }
       setObs(data);
       setCurrentTask(taskId);
       setTraces([]);
       setIsStarted(true);
-    } catch (err) {
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`);
       console.error(err);
     }
   };
@@ -68,21 +78,31 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(action)
       });
+      if (!res.ok) {
+         const errText = await res.text();
+         alert(`Failed to step: ${res.status} - ${errText}`);
+         return;
+      }
       const data = await res.json();
+      if (!data || !data.observation) {
+         alert("Invalid step response from server.");
+         return;
+      }
       setObs(data.observation);
       
-      const rewardValNum = data.reward;
+      const rewardValNum = data.reward || 0;
       const rewardVal = rewardValNum > 0 ? `+${rewardValNum.toFixed(2)}` : rewardValNum.toFixed(2);
       const newTrace: Trace = {
         step: data.observation.step_count,
         actionDisplay: action.type,
         targetDisplay: action.target || 'system',
         rewardDisplay: rewardVal,
-        detailsDisplay: data.observation.action_feedback?.substring(0, 80) + "..."
+        detailsDisplay: (data.observation.action_feedback || "").substring(0, 80) + "..."
       };
       setTraces(prev => [...prev, newTrace]);
       
-    } catch (err) {
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`);
       console.error(err);
     }
   };
