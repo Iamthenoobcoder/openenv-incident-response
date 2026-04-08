@@ -69,13 +69,15 @@ def tasks():
         raise HTTPException(status_code=500, detail=str(e))
 
 class ResetRequest(BaseModel):
-    task_id: str
+    task_id: str = "task1_easy"
     seed: int = 42
 
 @app.post("/api/reset", response_model=Observation)
-def reset(req: ResetRequest):
+def reset(req: ResetRequest = None):
     global current_env
     try:
+        if req is None:
+            req = ResetRequest()
         current_env = IncidentResponseEnv(req.task_id, req.seed)
         return current_env.reset()
     except Exception as e:
@@ -83,11 +85,13 @@ def reset(req: ResetRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/step", response_model=StepResponse)
-def step(action: Action):
+def step(action: Action = None):
     global current_env
     try:
         if not current_env:
             raise HTTPException(status_code=400, detail="No active session. Call /reset first.")
+        if action is None:
+            raise HTTPException(status_code=400, detail="Action body is explicitly required.")
         return current_env.step(action)
     except HTTPException:
         raise
@@ -219,11 +223,11 @@ def run_baseline_root():
     return run_baseline()
 
 @app.post("/reset", response_model=Observation)
-def reset_root(req: ResetRequest):
+def reset_root(req: ResetRequest = None):
     return reset(req)
 
 @app.post("/step", response_model=StepResponse)
-def step_root(action: Action):
+def step_root(action: Action = None):
     return step(action)
 
 @app.get("/api/actions")
