@@ -172,7 +172,7 @@ def run_agent_api(req: AgentRequest):
     try:
         from openai import OpenAI
         import json
-        api_key = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY", "AIzaSyBXkSjxI2hEcwfD-NGGnLdFggoDsGiG-pE")))
+        api_key = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY")))
         client = OpenAI(
             api_key=api_key,
             base_url=os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
@@ -218,6 +218,14 @@ Think step by step. Return ONLY a JSON action object like {{"type": "check_logs"
 def run_baseline_root():
     return run_baseline()
 
+@app.post("/reset", response_model=Observation)
+def reset_root(req: ResetRequest):
+    return reset(req)
+
+@app.post("/step", response_model=StepResponse)
+def step_root(action: Action):
+    return step(action)
+
 @app.get("/api/actions")
 def actions():
     try:
@@ -231,6 +239,22 @@ def actions():
     except Exception as e:
         print(f"Failed to fetch actions: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/health")
+def health_root():
+    return health()
+
+@app.get("/state", response_model=SystemState)
+def state_root():
+    return state()
+
+@app.get("/score")
+def score_root():
+    return score()
+
+@app.get("/actions")
+def actions_root():
+    return actions()
 
 # Serve static files from dist if it exists (for production/Hugging Face)
 dist_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "dist")
