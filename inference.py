@@ -10,7 +10,10 @@ from baseline.parse_action import parse_action
 load_dotenv()
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY", "AIzaSyBXkSjxI2hEcwfD-NGGnLdFggoDsGiG-pE")))
+API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY")))
+if not API_KEY:
+    raise ValueError("API Key is missing. Please set GEMINI_API_KEY, OPENAI_API_KEY, or HF_TOKEN.")
+
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash")
 
 client = OpenAI(
@@ -26,6 +29,7 @@ def run_task(task_id: str):
     # 1. Reset
     res = requests.post(f"{BASE_URL}/reset", json={"task_id": task_id, "seed": 42})
     obs = res.json()
+    done = obs.get("done", False)
     
     history = []
     
@@ -35,7 +39,7 @@ def run_task(task_id: str):
         'params': {'lines': 10}
     }
     
-    while not obs.get("done"):
+    while not done:
         print(f"Step {obs['step_count']}: Score {obs['score_so_far']:.2f}")
         
         max_retries = 5
@@ -57,7 +61,9 @@ def run_task(task_id: str):
             print("Failed after max retries. Using fallback.")
             action = FALLBACK_ACTION
             res = requests.post(f"{BASE_URL}/step", json=action)
-            obs = res.json()
+            step_res = res.json()
+            done = step_res.get("done", False)
+            obs = step_res.get("observation", step_res)
             continue
             
         message_text = response.choices[0].message.content
@@ -68,13 +74,17 @@ def run_task(task_id: str):
             
         print(f"> Action: {action.get('type')} on {action.get('target')}")
         
+        time.sleep(5) # Stays under 12 req/min free tier limit
+        
         # 3. Step
         res = requests.post(f"{BASE_URL}/step", json=action)
         step_res = res.json()
+        
+        done = step_res.get("done", False)
         obs = step_res.get("observation", step_res)
         history.append({"action": action, "feedback": obs.get("action_feedback")})
         
-        if step_res.get("done") or obs.get("done"):
+        if done or obs.get("done"):
             break
             
     # Fetch final score using the programmatic grader
