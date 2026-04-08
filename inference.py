@@ -10,20 +10,23 @@ from baseline.parse_action import parse_action
 load_dotenv()
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-API_KEY = os.getenv("HF_TOKEN", os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY")))
-if not API_KEY:
-    raise ValueError("API Key is missing. Please set GEMINI_API_KEY, OPENAI_API_KEY, or HF_TOKEN.")
-
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+if not HF_TOKEN:
+    HF_TOKEN = os.getenv("GEMINI_API_KEY", os.getenv("OPENAI_API_KEY"))
+    if not HF_TOKEN:
+        raise ValueError("API Key is missing.")
 
 client = OpenAI(
-    api_key=API_KEY,
+    api_key=HF_TOKEN,
     base_url=API_BASE_URL
 )
 
 BASE_URL = "http://localhost:7860/api"
 
 def run_task(task_id: str):
+    print("START")
     print(f"--- Running Task: {task_id} ---")
     
     # 1. Reset
@@ -40,6 +43,7 @@ def run_task(task_id: str):
     }
     
     while not done:
+        print("STEP")
         print(f"Step {obs['step_count']}: Score {obs['score_so_far']:.2f}")
         
         max_retries = 5
@@ -91,6 +95,7 @@ def run_task(task_id: str):
     grader_res = requests.get(f"{BASE_URL}/grader")
     final_score = grader_res.json().get("score", 0.0)
     
+    print("END")
     print(f"--- Task Complete: {task_id} | Final Score: {final_score:.2f} ---")
     return final_score, history
 
